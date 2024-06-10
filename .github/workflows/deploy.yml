@@ -60,5 +60,7 @@ jobs:
       run: |
         npm install -g @pnp/cli-microsoft365
         m365 login --authType password --userName ${{ secrets.SHAREPOINT_USERNAME }} --password ${{ secrets.SHAREPOINT_PASSWORD }}
-        m365 spo app add --filePath ./solution/*.sppkg --appCatalogUrl ${{ secrets.APP_CATALOG_URL }} --overwrite
-        m365 spo app deploy --name *.sppkg --appCatalogUrl ${{ secrets.APP_CATALOG_URL }}
+        m365 spo app add --filePath ./solution/spfx-pnp-js-example.sppkg --appCatalogUrl ${{ secrets.APP_CATALOG_URL }} --overwrite
+        m365 spo app deploy --name spfx-pnp-js-example.sppkg --appCatalogUrl ${{ secrets.APP_CATALOG_URL }}
+
+
