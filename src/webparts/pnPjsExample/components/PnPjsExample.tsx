@@ -20,13 +20,13 @@ export interface IAsyncAwaitPnPJsProps {
   description: string;
 }
 
-export interface IIPnPjsExampleState {
+export interface IIPnPjsExampleState { 
   items: IFile[];
   errors: string[];
-  newItemFile: File | null;
+  newItemFile: File | undefined;
   isDeleteDialogOpen:boolean;
   isUpdateDialogOpen: boolean;
-  currentItem: IFile | null;
+  currentItem: IFile | undefined;
   newTitle: string;
 }
 
@@ -41,17 +41,17 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
     this.state = {
       items: [],
       errors: [],
-      newItemFile: null,
+      newItemFile: undefined,
       isDeleteDialogOpen: false,
       isUpdateDialogOpen: false,
-      currentItem: null,
+      currentItem: undefined,
       newTitle: ""
     };
     this._sp = getSP();
   }
 
-  public componentDidMount(): void {
-    this._readAllFilesSize();
+  public async componentDidMount(): Promise<void> {
+    await this._readAllFilesSize();
   }
 
   public render(): React.ReactElement<IAsyncAwaitPnPJsProps> {
@@ -99,7 +99,7 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
               </tr>
             ))}
             <tr>
-              <td></td>
+              {/* <td></td> */}
               <td><strong>Total:</strong></td>
               <td><strong>{(totalDocs / 1024).toFixed(2)}</strong></td>
             </tr>
@@ -110,7 +110,10 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
         <input 
           type="file" 
           style={{ display: 'none' }} 
-          ref={input => this.fileInput = input} 
+          ref={input => {
+            this.fileInput = input
+            return input
+          }} 
           onChange={this._handleFileChange} 
         />
 
@@ -162,7 +165,7 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
   }
   
   private _closeUpdateDialog = (): void => {
-    this.setState({ isUpdateDialogOpen: false, currentItem: null, newTitle: "" });
+    this.setState({ isUpdateDialogOpen: false, currentItem: undefined, newTitle: "" });
   }
 
   private _openDeleteDialog = (item: IFile): void => {
@@ -170,7 +173,7 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
   }
   
   private _closeDeleteDialog = (): void => {
-    this.setState({ isDeleteDialogOpen: false, currentItem: null});
+    this.setState({ isDeleteDialogOpen: false, currentItem: undefined});
   }
   
   private _updateItemTitle = async (): Promise<void> => {
@@ -181,7 +184,6 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
         Title: this.state.newTitle
       });
   
-      this._invalidateCache();
       await this._readAllFilesSize();
       this._closeUpdateDialog();
     } catch (err) {
@@ -225,9 +227,8 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
 
       console.log("File uploaded successfully:", result);
 
-      this._invalidateCache();
       await this._readAllFilesSize();
-      this.setState({ newItemFile: null });
+      this.setState({ newItemFile: undefined });
     } catch (err) {
       Logger.write(`${this.LOG_SOURCE} (_handleFileChange) - ${JSON.stringify(err)} - `, LogLevel.Error);
     }
@@ -241,7 +242,6 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
 
     try {
       await this._sp.web.lists.getByTitle(this.LIBRARY_NAME).items.getById(this.state.currentItem.Id).delete();
-      this._invalidateCache();
       await this._readAllFilesSize();
       this._closeDeleteDialog();
     } catch (err) {
@@ -286,7 +286,7 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
       //Clone items from the state
       const items = JSON.parse(JSON.stringify(this.state.items));
 
-      let res: IItemUpdateResult[] = [];
+      const res: IItemUpdateResult[] = [];
 
       for (let i = 0; i < items.length; i++) {
         // you need to use .then syntax here as otherwise the application will stop and await the result
@@ -295,7 +295,8 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
           .items
           .getById(items[i].Id)
           .update({ Title: `${items[i].Name}--Updated` })
-          .then(r => res.push(r));
+          .then(r => res.push(r))
+          .catch(error=> {throw error});
       }
       // Executes the batched calls
       await execute();
@@ -313,9 +314,5 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
     } catch (err) {
       Logger.write(`${this.LOG_SOURCE} (_updateTitles) - ${JSON.stringify(err)} - `, LogLevel.Error);
     }
-  }
-
-  private _invalidateCache = (): void => {
-
   }
 }

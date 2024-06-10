@@ -1,4 +1,0 @@
-How to check logs?
-Fix caching
-Use a unit testing framework
-create a CI/CD pipeline
