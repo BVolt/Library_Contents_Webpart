@@ -1,19 +1,17 @@
 import * as React from 'react';
 import styles from './PnPjsExample.module.scss';
 import { IPnPjsExampleProps } from './IPnPjsExampleProps';
-
 import { IFile, IResponseItem } from "./interfaces";
 import { getSP } from "../pnpjsConfig";
 import { SPFI} from "@pnp/sp";
 import { Logger, LogLevel } from "@pnp/logging";
 import { IItemUpdateResult } from "@pnp/sp/items";
+import { Label, PrimaryButton, IconButton } from '@microsoft/office-ui-fabric-react-bundle';
 import { Dialog, DialogType, DialogFooter, DefaultButton, TextField } from '@fluentui/react';
 import { IFileAddResult} from "@pnp/sp/files";
 import "@pnp/sp/attachments";
 import "@pnp/sp/folders";
 import "@pnp/sp/files";
-
-import { Label, PrimaryButton, IconButton } from '@microsoft/office-ui-fabric-react-bundle';
 
 export interface IAsyncAwaitPnPJsProps {
   description: string;
@@ -48,6 +46,7 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
     this._sp = getSP();
   }
 
+  // Load files when the component mounts
   public async componentDidMount(): Promise<void> {
     await this._readAllFilesSize();
   }
@@ -158,22 +157,17 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
     );
   }
   
+  // Opens the update dialog and sets the current item
   private _openUpdateDialog = (item: IFile): void => {
     this.setState({ isUpdateDialogOpen: true, currentItem: item, newTitle: item.Title });
   }
   
+  // Closes the update dialog and clears the current item
   private _closeUpdateDialog = (): void => {
     this.setState({ isUpdateDialogOpen: false, currentItem: undefined, newTitle: "" });
   }
-
-  private _openDeleteDialog = (item: IFile): void => {
-    this.setState({ isDeleteDialogOpen: true, currentItem: item});
-  }
   
-  private _closeDeleteDialog = (): void => {
-    this.setState({ isDeleteDialogOpen: false, currentItem: undefined});
-  }
-  
+  // Updates the title of the current item
   private _updateItemTitle = async (): Promise<void> => {
     if (!this.state.currentItem) return;
   
@@ -189,14 +183,40 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
     }
   }
 
+  // Opens the delete dialog and sets the current item
+  private _openDeleteDialog = (item: IFile): void => {
+    this.setState({ isDeleteDialogOpen: true, currentItem: item});
+  }
+
+  // Closes the delete dialog and clears the current item
+  private _closeDeleteDialog = (): void => {
+    this.setState({ isDeleteDialogOpen: false, currentItem: undefined});
+  }
+
+  // Deletes the current item from the SharePoint library
+  private _deleteItem = async (): Promise<void> => {
+    if (!this.state.currentItem) return;
+
+    try {
+      await this._sp.web.lists.getByTitle(this.LIBRARY_NAME).items.getById(this.state.currentItem.Id).delete();
+      await this._readAllFilesSize();
+      this._closeDeleteDialog();
+    } catch (err) {
+      Logger.write(`${this.LOG_SOURCE} (uploadFile) - ${JSON.stringify(err)} - `, LogLevel.Error);
+    }
+  }
+
+  // Reference to the hidden file input element
   private fileInput: HTMLInputElement | null = null;
 
+  // Triggers the hidden file input click
   private _triggerFileInput = (): void => {
     if (this.fileInput) {
       this.fileInput.click();
     }
   }
   
+  // Handles the file input change event
   private _handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
     const file = event.target.files?.[0] || null;
     if (file) {
@@ -205,6 +225,7 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
     }
   }
   
+  // Uploads a file to the SharePoint library
   private uploadFile = async (file: File): Promise<void> => {
     try {
       const fileContent = await file.arrayBuffer();
@@ -231,22 +252,8 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
       Logger.write(`${this.LOG_SOURCE} (_handleFileChange) - ${JSON.stringify(err)} - `, LogLevel.Error);
     }
   }
-  
-  
-  
 
-  private _deleteItem = async (): Promise<void> => {
-    if (!this.state.currentItem) return;
-
-    try {
-      await this._sp.web.lists.getByTitle(this.LIBRARY_NAME).items.getById(this.state.currentItem.Id).delete();
-      await this._readAllFilesSize();
-      this._closeDeleteDialog();
-    } catch (err) {
-      Logger.write(`${this.LOG_SOURCE} (uploadFile) - ${JSON.stringify(err)} - `, LogLevel.Error);
-    }
-  }
-
+  // Reads all files from the SharePoint library and updates the state
   private _readAllFilesSize = async (): Promise<void> => {
     try {  
       const response: IResponseItem[] = await this._sp.web.lists
@@ -255,9 +262,7 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
         .select("Id", "Title", "FileLeafRef", "File/Length")
         .expand("File/Length")();
 
-      console.log("Session storage keys after request:", Object.keys(sessionStorage));
       
-
       // use map to convert IResponseItem[] into our internal object IFile[]
       const items: IFile[] = response.map((item: IResponseItem) => {
         return {
@@ -275,6 +280,7 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
     }
   }
 
+  // Updates the titles of all items in the SharePoint library
   private _updateTitles = async (): Promise<void> => {
     try {
       const [batchedSP, execute] = this._sp.batched();
