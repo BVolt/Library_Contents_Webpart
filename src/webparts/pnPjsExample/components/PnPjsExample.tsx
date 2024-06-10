@@ -60,7 +60,7 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
   
     return (
       <div className={styles.pnPjsExample}>
-        <Label>{`${this.LIBRARY_NAME} Library Contents`}</Label>
+        <Label>{`${this.LIBRARY_NAME} Library Content`}</Label>
         <PrimaryButton onClick={this._triggerFileInput} className={styles.buttonSpacing}>Upload File</PrimaryButton>
         <PrimaryButton onClick={this._updateTitles}>Update Item Titles</PrimaryButton>
         <Label>List of documents:</Label>
