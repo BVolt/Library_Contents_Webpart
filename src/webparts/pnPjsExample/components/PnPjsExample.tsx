@@ -306,7 +306,7 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
           .getByTitle(this.LIBRARY_NAME)
           .items
           .getById(items[i].Id)
-          .update({ Title: `${items[i].Name}-Updated` })
+          .update({ Title: `${items[i].Name}--Updated` })
           .then(r => res.push(r));
       }
       // Executes the batched calls
