@@ -250,19 +250,7 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
   }
 
   private _readAllFilesSize = async (): Promise<void> => {
-    try {
-      // do PnP JS query, some notes:
-      //   - .expand() method will retrive Item.File item but only Length property
-      //   - .get() always returns a promise
-      //   - await resolves promises making your code act synchronous, ergo Promise<IResponseItem[]> becomes IResponse[]
-
-      //Extending our sp object to include caching behavior, this modification will add caching to the sp object itself
-      //this._sp.using(Caching({store:"session"}));
-
-      //Creating a new sp object to include caching behavior. This way our original object is unchanged.
-
-      // const spCache = spfi(this._sp).using(Caching({store:"session"}));
-      
+    try {  
       const response: IResponseItem[] = await this._sp.web.lists
         .getByTitle(this.LIBRARY_NAME)
         .items
