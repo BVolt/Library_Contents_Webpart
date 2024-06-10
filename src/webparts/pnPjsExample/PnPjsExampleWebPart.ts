@@ -40,9 +40,6 @@ export default class PnPjsExampleWebPart extends BaseClientSideWebPart<IPnPjsExa
 
   public async onInit(): Promise<void> {
     this._environmentMessage = await this._getEnvironmentMessage();
-    // this._getEnvironmentMessage().then(message => {
-    //   this._environmentMessage = message;
-    // });
 
     await super.onInit();
 

@@ -2,7 +2,6 @@ import * as React from 'react';
 import styles from './PnPjsExample.module.scss';
 import { IPnPjsExampleProps } from './IPnPjsExampleProps';
 
-// import interfaces
 import { IFile, IResponseItem } from "./interfaces";
 import { getSP } from "../pnpjsConfig";
 import { SPFI} from "@pnp/sp";
@@ -37,7 +36,6 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
 
   constructor(props: IPnPjsExampleProps) {
     super(props);
-    // set initial state
     this.state = {
       items: [],
       errors: [],
@@ -279,17 +277,13 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
 
   private _updateTitles = async (): Promise<void> => {
     try {
-      //Will create a batch call that will update the title of each item
-      //  in the library by adding `-Updated` to the end.
       const [batchedSP, execute] = this._sp.batched();
 
-      //Clone items from the state
       const items = JSON.parse(JSON.stringify(this.state.items));
 
       const res: IItemUpdateResult[] = [];
 
       for (let i = 0; i < items.length; i++) {
-        // you need to use .then syntax here as otherwise the application will stop and await the result
         batchedSP.web.lists
           .getByTitle(this.LIBRARY_NAME)
           .items
@@ -303,10 +297,11 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
 
       // Results for all batched calls are available
       for (let i = 0; i < res.length; i++) {
-        //If the result is successful update the item
-        //NOTE: This code is over simplified, you need to make sure the Id's match
         const item = await res[i].item.select("Id, Title")<{ Id: number, Title: string }>();
-        items[i].Title = item.Title;
+        const stateItem = items.find((it: IFile) => it.Id === item.Id);
+        if (stateItem) {
+          stateItem.Title = item.Title;
+        }
       }
 
       //Update the state which rerenders the component
