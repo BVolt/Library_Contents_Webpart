@@ -96,7 +96,7 @@ export default class PnPjsExample extends React.Component<IPnPjsExampleProps, II
               </tr>
             ))}
             <tr>
-              {/* <td></td> */}
+              <td> </td>
               <td><strong>Total:</strong></td>
               <td><strong>{(totalDocs / 1024).toFixed(2)}</strong></td>
             </tr>
