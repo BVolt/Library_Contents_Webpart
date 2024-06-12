@@ -9,20 +9,21 @@
     font-family: $ms-font-family-fallbacks;
   }
 
-  &::before{
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    height: 50%;
-    background-image: url("//www.clipartbest.com/cliparts/xig/K89/xigK89KgT.png");
-    background-position: center bottom;
-    background-size: contain;
-    background-repeat: no-repeat;
-    pointer-events: none; 
-  }
+    &::before{
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 50%;
+      background-image: url("//www.clipartbest.com/cliparts/xig/K89/xigK89KgT.png");
+      background-position: center bottom;
+      background-size: contain;
+      background-repeat: no-repeat;
+      pointer-events: none; 
+      opacity: .5;
+    }
 }
 
 .buttonSpacing {
